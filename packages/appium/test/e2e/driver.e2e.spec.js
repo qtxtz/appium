@@ -208,6 +208,77 @@ describe('FakeDriver via HTTP', function () {
     });
   });
 
+  describe('inspector commands', function () {
+    withServer();
+    let driver;
+
+    beforeEach(async function () {
+      driver = await wdio({...wdOpts, capabilities: caps});
+    });
+    afterEach(async function () {
+      if (driver) {
+        await driver.deleteSession();
+        driver = null;
+      }
+    });
+
+    it('should list available driver commands', async function () {
+      driver.addCommand(
+        'listCommands',
+        async () => (await axios.get(
+          `${testServerBaseSessionUrl}/${driver.sessionId}/appium/commands`
+        )).data.value
+      );
+
+      const commands = await driver.listCommands();
+
+      JSON.stringify(commands.rest.base['/session/:sessionId/frame'])
+        .should.eql(JSON.stringify({POST: {command: 'setFrame', params: [
+          {name: 'id', required: true}
+        ]}}));
+      _.size(commands.rest.driver).should.be.greaterThan(1);
+
+      JSON.stringify(commands.bidi.base.session.subscribe).should.eql(
+        JSON.stringify({
+          command: 'bidiSubscribe',
+          'params': [
+            {
+              name: 'events',
+              required: true
+            },
+            {
+              name: 'contexts',
+              required: false
+            }
+          ]
+        })
+      );
+      _.size(commands.bidi.base).should.be.greaterThan(1);
+      _.size(commands.bidi.driver).should.be.greaterThan(0);
+    });
+
+    it('should list available driver extensions', async function () {
+      driver.addCommand(
+        'listExtensions',
+        async () => (await axios.get(
+          `${testServerBaseSessionUrl}/${driver.sessionId}/appium/extensions`
+        )).data.value
+      );
+
+      const extensions = await driver.listExtensions();
+      JSON.stringify(extensions.rest.driver['fake: setThing']).should.eql(
+        JSON.stringify({
+          command: 'setFakeThing',
+          params: [{
+            name: 'thing',
+            required: true
+          }]
+        })
+      );
+      _.size(extensions.rest.driver).should.be.greaterThan(1);
+    });
+  });
+
   describe('session handling', function () {
     withServer();
 
