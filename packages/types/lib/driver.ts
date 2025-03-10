@@ -2,7 +2,12 @@ import type {EventEmitter} from 'node:events';
 import type {Merge} from 'type-fest';
 import type {ActionSequence} from './action';
 import type {Capabilities, DriverCaps, W3CCapabilities, W3CDriverCaps} from './capabilities';
-import type {BidiModuleMap, BiDiResultData, ExecuteMethodMap, MethodMap} from './command';
+import type {
+  BidiModuleMap,
+  BiDiResultData,
+  ExecuteMethodMap,
+  MethodMap,
+} from './command';
 import type {ServerArgs} from './config';
 import type {HTTPHeaders, HTTPMethod} from './http';
 import type {AppiumLogger} from './logger';
@@ -17,6 +22,7 @@ export interface IDeviceSettings<T extends StringRecord> {
   update(newSettings: T): Promise<void>;
   getSettings(): T;
 }
+
 export interface ITimeoutCommands {
   /**
    * Set the various timeouts associated with a session
@@ -195,6 +201,19 @@ export type SingularSessionData<
 > = DriverCaps<C> & {
   events?: EventHistory;
   error?: string;
+} & T;
+
+/**
+ * Data returned by {@linkcode ISessionCommands.getAppiumSessionCapabilities}.
+ *
+ * @typeParam C - The driver's constraints
+ * @typeParam T - Any extra data the driver stuffs in here
+ */
+export type SessionCapabilities<
+  C extends Constraints = Constraints,
+  T extends StringRecord = StringRecord,
+> = {
+  capabilities: DriverCaps<C>;
 } & T;
 
 export interface IFindCommands {

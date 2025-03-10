@@ -10,11 +10,12 @@
     ":enableVulnerabilityAlerts",
     ":rebaseStalePrs",
     ":semanticCommits",
-    ":semanticPrefixChore"
+    ":semanticCommitTypeAll(chore)"
   ],
   "packageRules": [
     {
       "matchPackageNames": [
+        "@types/supports-color",
         "@types/wrap-ansi",
         "chalk",
         "conf",
